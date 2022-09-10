@@ -1,9 +1,24 @@
 import { FormControl, MenuItem, Select } from "@material-ui/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 
 function App() {
-  const [countries, setCountries] = useState(["PAK", "USA", "UK"]);
+  const [countries, setCountries] = useState([]);
+  useEffect(() => {
+    // async ==> send a request to server, wait for it, do something wih info
+    const getCountriesData = async () => {
+      await fetch("https://disease.sh/v3/covid-19/countries")
+        .then((response) => response.json())
+        .then((data) => {
+          const countries = data.map((country) => ({
+            name: country.country, //PAKISTAN, INDIA, UNITED STATES
+            value: country.countryInfo.iso2, //PK, IN,US
+          }));
+          setCountries(countries);
+        });
+    };
+    getCountriesData();
+  }, []);
   return (
     <div className="app">
       <div className="app__header">
@@ -14,7 +29,7 @@ function App() {
               A DROP DOWN LIST OF THE OPTIONS */}
 
             {countries.map((country) => (
-              <MenuItem>{country} </MenuItem>
+              <MenuItem value={country.value}>{country.name} </MenuItem>
             ))}
           </Select>
         </FormControl>
